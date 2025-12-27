@@ -1,0 +1,50 @@
+-- Create database and tables for Bus Reservation System
+CREATE DATABASE IF NOT EXISTS bus_reservation;
+USE bus_reservation;
+
+CREATE TABLE IF NOT EXISTS USER (
+  user_id INT AUTO_INCREMENT PRIMARY KEY,
+  name VARCHAR(100) NOT NULL,
+  email VARCHAR(100) UNIQUE NOT NULL,
+  phone VARCHAR(15),
+  password_hash VARCHAR(255) NOT NULL,
+  role ENUM('CUSTOMER','ADMIN') DEFAULT 'CUSTOMER'
+);
+
+CREATE TABLE IF NOT EXISTS BUS (
+  bus_id INT AUTO_INCREMENT PRIMARY KEY,
+  bus_number VARCHAR(20) UNIQUE NOT NULL,
+  capacity INT NOT NULL,
+  type VARCHAR(50)
+);
+
+CREATE TABLE IF NOT EXISTS ROUTE (
+  route_id INT AUTO_INCREMENT PRIMARY KEY,
+  origin VARCHAR(100) NOT NULL,
+  destination VARCHAR(100) NOT NULL,
+  distance_km INT
+);
+
+CREATE TABLE IF NOT EXISTS SCHEDULE (
+  schedule_id INT AUTO_INCREMENT PRIMARY KEY,
+  bus_id INT NOT NULL,
+  route_id INT NOT NULL,
+  travel_date DATE NOT NULL,
+  departure_time TIME NOT NULL,
+  arrival_time TIME NOT NULL,
+  fare DECIMAL(10,2) NOT NULL,
+  FOREIGN KEY (bus_id) REFERENCES BUS(bus_id) ON DELETE CASCADE,
+  FOREIGN KEY (route_id) REFERENCES ROUTE(route_id) ON DELETE CASCADE
+);
+
+CREATE TABLE IF NOT EXISTS SEAT_RESERVATION (
+  reservation_id INT AUTO_INCREMENT PRIMARY KEY,
+  schedule_id INT NOT NULL,
+  user_id INT NOT NULL,
+  seat_number INT NOT NULL,
+  status ENUM('BOOKED','CANCELLED') DEFAULT 'BOOKED',
+  booking_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (schedule_id) REFERENCES SCHEDULE(schedule_id) ON DELETE CASCADE,
+  FOREIGN KEY (user_id) REFERENCES USER(user_id) ON DELETE CASCADE,
+  UNIQUE (schedule_id, seat_number)
+);
